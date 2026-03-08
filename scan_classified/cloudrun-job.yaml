@@ -1,0 +1,52 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: printemps-terres-scan-classified
+  labels:
+    app: printemps-terres
+    agent: scan-classified
+spec:
+  template:
+    spec:
+      template:
+        spec:
+          containers:
+            - image: gcr.io/PROJECT_ID/printemps-terres-scan-classified:latest
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: "512Mi"
+              env:
+                - name: AZURE_OPENAI_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: azure-openai-api-key
+                      key: latest
+                - name: AZURE_OPENAI_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: azure-openai-endpoint
+                      key: latest
+                - name: AZURE_OPENAI_DEPLOYMENT
+                  value: "gpt-5-mini"
+                - name: AZURE_OPENAI_API_VERSION
+                  value: "2024-12-01-preview"
+                - name: SMTP_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: smtp-username
+                      key: latest
+                - name: SMTP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: smtp-password
+                      key: latest
+                - name: SEND_EMAIL
+                  value: "1"
+                - name: RECIPIENTS
+                  valueFrom:
+                    secretKeyRef:
+                      name: recipients
+                      key: latest
+          maxRetries: 1
+          timeoutSeconds: 600

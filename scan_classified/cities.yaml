@@ -1,0 +1,5 @@
+cities:
+  - name: Angers
+    lat: 47.4784
+    lng: -0.5632
+    radius: 500000
