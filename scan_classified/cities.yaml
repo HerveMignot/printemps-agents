@@ -5,9 +5,10 @@ cooldown_days: 30
 discard_threshold_days: 180
 
 cities:
+  # --- Pays de la Loire / Bretagne (existant) ---
   - name: Laval
-    lat: 48.066669
-    lng: -0.76667
+    lat: 48.0667
+    lng: -0.7667
     radius: 50000
 
   - name: Rennes
@@ -28,4 +29,156 @@ cities:
   - name: Angers
     lat: 47.4784
     lng: -0.5632
+    radius: 50000
+
+  # --- Normandie ---
+  - name: Caen
+    lat: 49.1829
+    lng: -0.3707
+    radius: 50000
+
+  - name: Rouen
+    lat: 49.4432
+    lng: 1.0999
+    radius: 50000
+
+  # --- Picardie ---
+  - name: Amiens
+    lat: 49.8942
+    lng: 2.2957
+    radius: 50000
+
+  - name: Beauvais
+    lat: 49.4295
+    lng: 2.0807
+    radius: 50000
+
+  # --- Beauce / Centre ---
+  - name: Chartres
+    lat: 48.4469
+    lng: 1.4890
+    radius: 50000
+
+  - name: Orléans
+    lat: 47.9029
+    lng: 1.9093
+    radius: 50000
+
+  # --- Champagne ---
+  - name: Reims
+    lat: 49.2583
+    lng: 3.9317
+    radius: 50000
+
+  - name: Troyes
+    lat: 48.2973
+    lng: 4.0744
+    radius: 50000
+
+  # --- Bourgogne ---
+  - name: Dijon
+    lat: 47.3220
+    lng: 5.0415
+    radius: 50000
+
+  - name: Auxerre
+    lat: 47.7979
+    lng: 3.5714
+    radius: 50000
+
+  - name: Nevers
+    lat: 46.9897
+    lng: 3.1593
+    radius: 50000
+
+  # --- Lorraine / Alsace ---
+  - name: Metz
+    lat: 49.1193
+    lng: 6.1757
+    radius: 50000
+
+  - name: Strasbourg
+    lat: 48.5734
+    lng: 7.7521
+    radius: 70000
+
+  # --- Franche-Comté ---
+  - name: Besançon
+    lat: 47.2378
+    lng: 6.0241
+    radius: 50000
+
+  - name: Lons-le-Saunier
+    lat: 46.6745
+    lng: 5.5513
+    radius: 50000
+
+  # --- Poitou-Charentes ---
+  - name: Poitiers
+    lat: 46.5802
+    lng: 0.3404
+    radius: 50000
+
+  - name: Niort
+    lat: 46.3234
+    lng: -0.4646
+    radius: 50000
+
+  - name: Angoulême
+    lat: 45.6500
+    lng: 0.1560
+    radius: 50000
+
+  # --- Limousin ---
+  - name: Limoges
+    lat: 45.8336
+    lng: 1.2611
+    radius: 50000
+
+  # --- Auvergne ---
+  - name: Clermont-Ferrand
+    lat: 45.7772
+    lng: 3.0870
+    radius: 50000
+
+  - name: Aurillac
+    lat: 44.9261
+    lng: 2.4406
+    radius: 50000
+
+  # --- Aquitaine / Landes ---
+  - name: Bordeaux
+    lat: 44.8378
+    lng: -0.5792
+    radius: 70000
+
+  - name: Mont-de-Marsan
+    lat: 43.8900
+    lng: -0.5000
+    radius: 50000
+
+  - name: Agen
+    lat: 44.2033
+    lng: 0.6163
+    radius: 50000
+
+  - name: Pau
+    lat: 43.2951
+    lng: -0.3708
+    radius: 50000
+
+  # --- Midi-Pyrénées ---
+  - name: Toulouse
+    lat: 43.6047
+    lng: 1.4442
+    radius: 50000
+
+  - name: Auch
+    lat: 43.6464
+    lng: 0.5858
+    radius: 50000
+
+  - name: Rodez
+    lat: 44.3497
+    lng: 2.5753
     radius: 50000
