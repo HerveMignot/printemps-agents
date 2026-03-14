@@ -249,6 +249,27 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
 </html>
 """
 
+    # Build summary table
+    summary_rows = ""
+    for city_name, ads in ads_by_city.items():
+        if ads:
+            summary_rows += f'<tr><td>{city_name}</td><td style="text-align:right">{len(ads)}</td></tr>\n'
+    empty_cities = [city_name for city_name, ads in ads_by_city.items() if not ads]
+    empty_html = ""
+    if empty_cities:
+        empty_list = ", ".join(empty_cities)
+        empty_html = f'<p class="empty-cities">Pas de résultats pour les villes suivantes : {empty_list}.</p>'
+
+    summary_html = ""
+    if summary_rows:
+        summary_html = f"""
+    <table class="summary">
+        <tr><th>Ville</th><th style="text-align:right">Annonces</th></tr>
+        {summary_rows}
+    </table>
+    {empty_html}
+"""
+
     sections_html = ""
     for city_name, ads in ads_by_city.items():
         if not ads:
@@ -324,6 +345,32 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
             margin-bottom: 15px;
             font-weight: 600;
         }}
+        .summary {{
+            width: auto;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+        }}
+        .summary th {{
+            background-color: #0a9ab5;
+            color: white;
+            padding: 4px 16px;
+            text-align: left;
+            font-weight: 600;
+        }}
+        .summary td {{
+            padding: 3px 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }}
+        .summary tr:nth-child(even) td {{
+            background-color: #f0efe8;
+        }}
+        .empty-cities {{
+            color: #5f6360;
+            font-size: 0.85em;
+            font-style: italic;
+            margin: 10px 0 25px 0;
+        }}
         .city-section {{
             margin-bottom: 30px;
         }}
@@ -381,7 +428,6 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
         .info {{
             margin-top: 30px;
             padding: 15px 20px;
-            background-color: #f0efe8;
             border-radius: 6px;
             font-size: 0.9em;
             color: #5f6360;
@@ -417,6 +463,7 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
         <h1>Printemps des Terres</h1>
         <p class="subtitle">{total_ads} annonce(s) de terres agricoles correspondant aux critères ({total_processed} annonces traitées)</p>
     </div>
+    {summary_html}
     {sections_html}
     <div class="info">
         <h2>Informations</h2>
@@ -461,7 +508,7 @@ def main():
     from datetime import datetime, timezone
 
     # Load configuration
-    config_path = Path(__file__).parent / "cities.yaml"
+    config_path = Path(__file__).parent / "test_cities.yaml"
     config = load_config(config_path)
     cities = config["cities"]
     cooldown_days = config.get("cooldown_days", 30)
