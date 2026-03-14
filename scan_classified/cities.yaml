@@ -1,3 +1,9 @@
+# Number of days before re-emailing a previously sent ad
+cooldown_days: 30
+
+# Number of days after last seen before discarding an ad from tracking
+discard_threshold_days: 180
+
 cities:
   - name: Laval
     lat: 48.066669
