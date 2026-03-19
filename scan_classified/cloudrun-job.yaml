@@ -11,12 +11,14 @@ spec:
       template:
         spec:
           containers:
-            - image: gcr.io/PROJECT_ID/printemps-terres-scan-classified:latest
+            - image: IMAGE_URL:latest
               resources:
                 limits:
                   cpu: "1"
                   memory: "512Mi"
               env:
+                - name: PYTHONUNBUFFERED
+                  value: "1"
                 - name: AZURE_OPENAI_API_KEY
                   valueFrom:
                     secretKeyRef:
@@ -31,6 +33,18 @@ spec:
                   value: "gpt-5-mini"
                 - name: AZURE_OPENAI_API_VERSION
                   value: "2024-12-01-preview"
+                - name: SMTP_HOST
+                  value: "smtp.tem.scaleway.com"
+                - name: SENDER
+                  valueFrom:
+                    secretKeyRef:
+                      name: sender
+                      key: latest
+                - name: REPLY_TO
+                  valueFrom:
+                    secretKeyRef:
+                      name: reply-to
+                      key: latest
                 - name: SMTP_USERNAME
                   valueFrom:
                     secretKeyRef:
@@ -48,5 +62,15 @@ spec:
                     secretKeyRef:
                       name: recipients
                       key: latest
+                - name: GIST_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gist-id
+                      key: latest
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: github-token
+                      key: latest
           maxRetries: 1
-          timeoutSeconds: 600
+          timeoutSeconds: 3600
