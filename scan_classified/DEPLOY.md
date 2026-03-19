@@ -3,88 +3,67 @@
 ## Prerequisites
 
 - Google Cloud SDK installed and configured
-- A GCP project with Cloud Run and Secret Manager APIs enabled
+- A GCP project set with `gcloud config set project YOUR_PROJECT_ID`
+- A `.env` file at the repository root (copy from `.env.example`)
 
-## 1. Project Configuration
+## Deploy script
 
-```bash
-# Set the project
-export PROJECT_ID=your-project-id
-gcloud config set project $PROJECT_ID
+All deployment operations are managed via `deploy.sh` (copy from `example-gcp-deploy.sh`).
 
-# Enable required APIs
-gcloud services enable run.googleapis.com secretmanager.googleapis.com
-```
-
-## 2. Create Secrets
+The script loads secrets from the `.env` file and uses Artifact Registry for images.
 
 ```bash
-# Azure OpenAI
-echo -n "your-api-key" | gcloud secrets create azure-openai-api-key --data-file=-
-echo -n "https://your-resource.openai.azure.com/" | gcloud secrets create azure-openai-endpoint --data-file=-
-
-# SMTP Scaleway
-echo -n "your-smtp-username" | gcloud secrets create smtp-username --data-file=-
-echo -n "your-smtp-password" | gcloud secrets create smtp-password --data-file=-
-
-# Recipients (comma-separated list)
-echo -n "email1@example.com,email2@example.com" | gcloud secrets create recipients --data-file=-
+# Show available commands
+./scan_classified/deploy.sh help
 ```
 
-## 3. Build and Push the Image
+### Commands
 
-Run from the repository root:
+| Command | Description |
+|---------|-------------|
+| `setup` | Enable APIs, create secrets from `.env`, grant IAM permissions (first time only) |
+| `build` | Build and push Docker image to Artifact Registry via Cloud Build |
+| `deploy` | Deploy the Cloud Run job from `cloudrun-job.yaml` |
+| `run` | Execute the job manually |
+| `logs` | View logs for the latest execution |
+| `schedule` | Set up Cloud Scheduler (Monday and Thursday at 6am Paris time) |
+| `all` | Build + deploy in one step |
+
+### First-time setup
 
 ```bash
-# Build and push to Google Container Registry
-gcloud builds submit --tag gcr.io/$PROJECT_ID/printemps-terres-scan-classified --dockerfile=scan_classified/Dockerfile
+# 1. Set your GCP project
+gcloud config set project your-project-id
+
+# 2. Create secrets and enable APIs
+./scan_classified/deploy.sh setup
+
+# 3. Build and deploy
+./scan_classified/deploy.sh all
+
+# 4. Run manually to test
+./scan_classified/deploy.sh run
+
+# 5. Set up scheduling (optional)
+./scan_classified/deploy.sh schedule
 ```
 
-Or build locally:
+### Secrets
 
-```bash
-docker build -f scan_classified/Dockerfile -t printemps-terres-scan-classified .
-```
+The `setup` command creates the following GCP secrets from `.env` variables:
 
-## 4. Deploy the Job
+| GCP Secret | `.env` variable |
+|------------|-----------------|
+| `azure-openai-api-key` | `AZURE_OPENAI_API_KEY` |
+| `azure-openai-endpoint` | `AZURE_OPENAI_ENDPOINT` |
+| `smtp-username` | `SMTP_USERNAME` |
+| `smtp-password` | `SMTP_PASSWORD` |
+| `sender` | `SENDER` |
+| `reply-to` | `REPLY_TO` |
+| `recipients` | `RECIPIENTS` |
+| `gist-id` | `GIST_ID` |
+| `github-token` | `GITHUB_TOKEN` |
 
-```bash
-# Replace PROJECT_ID in the YAML file
-sed -i "s/PROJECT_ID/$PROJECT_ID/g" scan_classified/cloudrun-job.yaml
+### Build context
 
-# Deploy the job
-gcloud run jobs replace scan_classified/cloudrun-job.yaml --region=europe-west1
-```
-
-## 5. Run the Job
-
-```bash
-# Execute the job manually
-gcloud run jobs execute printemps-terres-scan-classified --region=europe-west1
-
-# View logs
-gcloud run jobs executions logs printemps-terres-scan-classified --region=europe-west1
-```
-
-## 6. Scheduling (Optional)
-
-To run the job automatically (Monday and Thursday at 6am, Paris time):
-
-```bash
-# Create a service account for Cloud Scheduler
-gcloud iam service-accounts create scheduler-sa --display-name="Cloud Scheduler SA"
-
-# Grant permissions
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:scheduler-sa@$PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/run.invoker"
-
-# Create the Cloud Scheduler job
-gcloud scheduler jobs create http printemps-terres-scan-classified-biweekly \
-  --location=europe-west1 \
-  --schedule="0 6 * * 1,4" \
-  --time-zone="Europe/Paris" \
-  --uri="https://europe-west1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/$PROJECT_ID/jobs/printemps-terres-scan-classified:run" \
-  --http-method=POST \
-  --oauth-service-account-email="scheduler-sa@$PROJECT_ID.iam.gserviceaccount.com"
-```
+The Dockerfile expects to be built from `scan_classified/`. The `build` command copies `pyproject.toml` and `uv.lock` into the build context before submitting to Cloud Build, and cleans them up after.
