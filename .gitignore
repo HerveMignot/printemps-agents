@@ -17,3 +17,6 @@ outputs/
 
 # Seen ads tracking
 seen_ads.json
+
+# Deploy script (may contain project-specific config)
+deploy.sh
