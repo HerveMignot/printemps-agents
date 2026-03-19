@@ -5,6 +5,7 @@ Uses Azure OpenAI GPT-5.2 for filtering based on criteria.
 
 import os
 import smtplib
+import time
 import warnings
 from pathlib import Path
 
@@ -258,7 +259,7 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
     empty_html = ""
     if empty_cities:
         empty_list = ", ".join(empty_cities)
-        empty_html = f'<p class="empty-cities">Pas de résultats pour les villes suivantes : {empty_list}.</p>'
+        empty_html = f'<p class="empty-cities">Pas de résultats nouveaux pour les villes suivantes : {empty_list}.</p>'
 
     summary_html = ""
     if summary_rows:
@@ -508,7 +509,7 @@ def main():
     from datetime import datetime, timezone
 
     # Load configuration
-    config_path = Path(__file__).parent / "test_cities.yaml"
+    config_path = Path(__file__).parent / "cities.yaml"
     config = load_config(config_path)
     cities = config["cities"]
     cooldown_days = config.get("cooldown_days", 30)
@@ -563,8 +564,25 @@ def main():
         print(f"Searching in {city_name} (radius: {radius / 1_000:.2f} km)...")
         ads_by_city[city_name] = []
 
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                ads = search_city(city_name, lat, lng, radius)
+                break
+            except Exception as e:
+                if "Datadome" in str(e) or "Access blocked" in str(e):
+                    wait = 10 * (attempt + 1)
+                    print(f"  Blocked by Datadome, waiting {wait}s... (attempt {attempt + 1}/{max_retries})", flush=True)
+                    time.sleep(wait)
+                    if attempt == max_retries - 1:
+                        print(f"  Giving up on {city_name} after {max_retries} attempts")
+                        ads = []
+                else:
+                    print(f"  Error searching {city_name}: {e}")
+                    ads = []
+                    break
+
         try:
-            ads = search_city(city_name, lat, lng, radius)
             print(f"  Found {len(ads)} ads")
 
             for ad in ads:
@@ -627,7 +645,7 @@ def main():
                         print(f"  Skipping (already seen, v{seen_ad.version_matched}): {ad.subject[:50]}...")
 
         except Exception as e:
-            print(f"  Error searching {city_name}: {e}")
+            print(f"  Error processing {city_name}: {e}")
             continue
 
     total_ads = sum(len(ads) for ads in ads_by_city.values())
