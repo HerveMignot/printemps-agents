@@ -5,9 +5,11 @@ WORKDIR /app
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy project files (build context is repo root)
+# Copy project files (build context is scan_classified/)
+# pyproject.toml and uv.lock are copied here by the deploy script before build
 COPY pyproject.toml uv.lock ./
-COPY scan_classified/ ./scan_classified/
+COPY *.py ./scan_classified/
+COPY cities.yaml ./scan_classified/
 
 # Install dependencies
 RUN uv sync --frozen --no-dev
