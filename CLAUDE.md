@@ -29,7 +29,6 @@ Module layout:
 - `agent.py` — main pipeline, LLM prompt, HTML email generation, SMTP sending
 - `utils.py` — config loading, ad field extraction (surface, tenure, ad ID), French number formatting
 - `history.py` — `SeenAd` model and persistence (local JSON file or GitHub Gist), cooldown/discard/LLM decision logic
-- `gistfs.py` — standalone GitHub Gist read/write helper
 
 Pipeline flow:
 1. Load cities from `scan_classified/cities.yaml` (name, lat, lng, radius, cooldown, discard threshold)
@@ -45,7 +44,7 @@ Pipeline flow:
 
 **Key constant:** `PROMPT_VERSION` in `agent.py` — bump when `PROMPT_TEMPLATE` changes to force re-evaluation of all previously seen ads.
 
-**Key dependencies:** `lbc` (LeBonCoin API client), `langchain-openai` (Azure OpenAI via LangChain), `pydantic` (structured LLM output), `pyyaml`, `python-dotenv`, `requests` (Gist API).
+**Key dependencies:** `lbc` (LeBonCoin API client), `langchain-openai` (Azure OpenAI via LangChain), `pydantic` (structured LLM output), `pyyaml`, `python-dotenv`, `gistfs` (GitHub Gist filesystem).
 
 ## Configuration
 
