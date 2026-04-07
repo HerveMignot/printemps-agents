@@ -277,6 +277,7 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
             continue
 
         ads_html = ""
+        plural = "s" if len(ads) > 1 else ""
         for ad in ads:
             price_line = ""
             tenure_str = f" - {ad.tenure}" if ad.tenure else ""
@@ -302,11 +303,11 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
 
         sections_html += f"""
         <section class="city-section">
-            <h2>{city_name} - {len(ads)} annonce(s)</h2>
+            <h2>{city_name} - {len(ads)} annonce{plural}</h2>
             {ads_html}
         </section>
 """
-
+    plural = "s" if total_ads > 1 else ""
     return f"""
 <!DOCTYPE html>
 <html>
@@ -462,7 +463,7 @@ def generate_html(ads_by_city: dict[str, list[FilteredAd]], total_processed: int
 <body>
     <div class="header">
         <h1>Printemps des Terres</h1>
-        <p class="subtitle">{total_ads} annonce(s) de terres agricoles correspondant aux critères ({total_processed} annonces traitées)</p>
+        <p class="subtitle">{total_ads} annonce{plural} de terres agricoles correspondant aux critères ({total_processed} annonces traitées)</p>
     </div>
     {summary_html}
     {sections_html}
