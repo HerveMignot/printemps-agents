@@ -1,11 +1,11 @@
 """Tracking of previously seen ads across runs."""
 
 import json
-import requests
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from gistfs import GistFS
 from pydantic import BaseModel
 
 GIST_FILENAME = "seen_ads.json"
@@ -52,32 +52,17 @@ def save_seen_ads(path: Path, seen_ads: dict[str, SeenAd]) -> None:
 
 def load_seen_ads_gist(gist_id: str, token: str) -> dict[str, SeenAd]:
     """Load seen ads from a GitHub Gist. Returns empty dict if file not found."""
-    resp = requests.get(
-        f"https://api.github.com/gists/{gist_id}",
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    resp.raise_for_status()
-    gist = resp.json()
-    if GIST_FILENAME not in gist["files"]:
+    gfs = GistFS(gist_id, token)
+    if not gfs.exists(GIST_FILENAME):
         return {}
-    data = json.loads(gist["files"][GIST_FILENAME]["content"])
+    data = gfs.read(GIST_FILENAME)
     return _parse_seen_ads(data)
 
 
 def save_seen_ads_gist(gist_id: str, token: str, seen_ads: dict[str, SeenAd]) -> None:
     """Save seen ads to a GitHub Gist."""
-    resp = requests.patch(
-        f"https://api.github.com/gists/{gist_id}",
-        headers={"Authorization": f"Bearer {token}"},
-        json={
-            "files": {
-                GIST_FILENAME: {
-                    "content": json.dumps(_serialize_seen_ads(seen_ads), indent=2, default=str),
-                },
-            },
-        },
-    )
-    resp.raise_for_status()
+    gfs = GistFS(gist_id, token)
+    gfs.write(GIST_FILENAME, _serialize_seen_ads(seen_ads))
 
 
 def discard_old_ads(seen_ads: dict[str, SeenAd], threshold_days: int) -> dict[str, SeenAd]:
